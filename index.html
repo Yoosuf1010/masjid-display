@@ -80,7 +80,17 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
 .clock-ampm{font-size:clamp(1rem,2.8vh,2.2rem);font-weight:400;color:var(--gold);
   letter-spacing:.15em;margin-left:.4vw;vertical-align:middle}
 .clock-date{font-size:clamp(0.8rem,1.9vh,1.5rem);letter-spacing:.2em;color:var(--cream-d);text-transform:uppercase}
-.clock-hijri{font-family:'Amiri',serif;font-size:clamp(1.2rem,2.8vh,2.2rem);color:var(--gold);margin-top:-0.8vh}
+/* Hijri date — premium pattern: 5 ❖ RABI AL-AWWAL ❖ 1448 AH */
+.clock-hijri{font-family:'Cinzel',serif;font-size:clamp(.95rem,2.3vh,1.7rem);color:var(--gold-l);
+  margin-top:-0.6vh;letter-spacing:.1em;white-space:nowrap;line-height:1.35}
+.hd{display:inline-block;font-weight:700;color:#fff;font-size:1.25em;letter-spacing:.05em;
+  text-shadow:0 0 22px rgba(201,168,76,.45);vertical-align:middle}
+.hdash{display:inline-block;width:24px;height:1px;margin:0 .55em;vertical-align:middle;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.75}
+.hm{text-transform:uppercase;letter-spacing:.24em;color:var(--gold-l);vertical-align:middle}
+.hy{font-size:.85em;letter-spacing:.16em;color:var(--cream-d);vertical-align:middle}
+.ha{font-style:normal;font-size:.6em;letter-spacing:.2em;color:var(--gold-d);
+  margin-left:.45em;vertical-align:middle}
 
 /* CONTENT */
 .content{display:grid;grid-template-columns:28vw 1fr;gap:1.8vw;min-height:0}
@@ -205,9 +215,6 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
 .fund-detail{font-size:clamp(.65rem,1.5vh,1.2rem);color:var(--cream-l);margin-top:.4vh;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
 .fund-acc{font-family:'Courier New',Courier,monospace;font-size:clamp(1.4rem,3.4vh,3rem);color:#FFD700;font-variant-numeric:tabular-nums;letter-spacing:.02em;font-weight:900;margin-top:.3vh;text-shadow:0 0 10px rgba(255,215,0,0.35)}
 .fund-holder{font-size:clamp(.65rem,1.5vh,1.2rem);color:#FFF;margin-top:.1vh;letter-spacing:.05em}
-
-/* CLOCK HIJRI — small latin companion text */
-.hijri-en{font-family:'Cinzel',serif;font-size:.58em;color:var(--cream-d);letter-spacing:.08em}
 
 /* ══════════════════════════════════════════════════════════════════
    TOOLS — Qibla compass + Dhikr counter (open as overlays)
@@ -908,12 +915,6 @@ function hms(s) {
 
 // ══ HIJRI CALENDAR — reliable everywhere (no Intl calendar support needed) ══
 const HIJRI_MONTHS = ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Ula','Jumada al-Akhirah','Rajab','Shaʿban','Ramadan','Shawwal','Dhu al-Qaʿdah','Dhu al-Hijjah'];
-const HIJRI_MONTHS_AR = ['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
-const ARABIC_DIGITS = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-
-function toArabicNum(n) {
-  return String(n).replace(/\d/g, d => ARABIC_DIGITS[d]);
-}
 
 function gregorianToJD(y, m, d) {
   const a = Math.floor((14 - m) / 12);
@@ -936,11 +937,50 @@ function jdToHijri(jd) {
 function getHijri(k) {
   const jd = gregorianToJD(k.getFullYear(), k.getMonth() + 1, k.getDate());
   const h = jdToHijri(jd);
-  return {
-    ar: `${toArabicNum(h.day)} ${HIJRI_MONTHS_AR[h.month]} ${toArabicNum(h.year)} هـ`,
-    en: `${h.day} ${HIJRI_MONTHS[h.month]} ${h.year} AH`,
-    h
-  };
+  return { day: h.day, month: HIJRI_MONTHS[h.month], year: h.year };
+}
+
+function applyHijri(hg) {
+  const el = document.getElementById('clockHijri');
+  if (!el) return;
+  el.innerHTML =
+    `<span class="hd">${hg.day}</span>` +
+    `<span class="hdash"></span>` +
+    `<span class="hm">${hg.month}</span>` +
+    `<span class="hdash"></span>` +
+    `<span class="hy">${hg.year}<em class="ha">AH</em></span>`;
+}
+
+// The tabular date above drifts 1–2 days from the real (moon-sighting / Umm
+// al-Qura) calendar, so once per day we pull the accurate date from aladhan
+// (the same service that provides prayer times), cache it, and upgrade the
+// clock. Offline → the tabular date stays.
+let hijriFetchDone = false;
+let hijriFetchKey = null;
+function fetchAccurateHijri(k) {
+  const y = k.getFullYear(), m = k.getMonth() + 1, d = k.getDate();
+  const key = y + '-' + m + '-' + d;
+  if (hijriFetchKey !== key) { hijriFetchKey = key; hijriFetchDone = false; }
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('hijriAccurate') || 'null'); } catch (e) {}
+  if (saved && saved.key === key) { applyHijri(saved.val); hijriFetchDone = true; return; }
+  if (hijriFetchDone) return;
+  hijriFetchDone = true;
+  fetch('https://api.aladhan.com/v1/gToH/' + pad(d) + '-' + pad(m) + '-' + y)
+    .then(r => r.json())
+    .then(j => {
+      const hi = j && j.data && j.data.hijri;
+      if (!hi || !hi.day) return;
+      const mn = parseInt(hi.month.number, 10) - 1;
+      const val = {
+        day: parseInt(hi.day, 10),
+        month: HIJRI_MONTHS[mn],
+        year: parseInt(hi.year, 10)
+      };
+      try { localStorage.setItem('hijriAccurate', JSON.stringify({ key, val })); } catch (e) {}
+      applyHijri(val);
+    })
+    .catch(() => {});
 }
 
 // ══ CLOCK — 12hr display ═════════════════════════════════════════
@@ -957,8 +997,8 @@ function updateClock() {
   const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONS=['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('clockDate').textContent = `${DAYS[k.getDay()]}, ${k.getDate()} ${MONS[k.getMonth()]} ${k.getFullYear()}`;
-  const hg = getHijri(k);
-  document.getElementById('clockHijri').innerHTML = `${hg.ar} <span class="hijri-en">· ${hg.en}</span>`;
+  applyHijri(getHijri(k));     // instant (tabular) — never blank
+  fetchAccurateHijri(k);       // upgrade to the real date when online
 }
 
 // ══ HADITH — changes daily ═══════════════════════════════════════
