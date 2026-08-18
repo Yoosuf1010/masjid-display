@@ -49,7 +49,7 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
 
 /* SCREEN */
 .screen{position:relative;z-index:3;width:100vw;height:100vh;
-  display:grid;grid-template-rows:15vh 1fr 6vh;
+  display:grid;grid-template-rows:15vh auto 1fr 6vh;
   padding:1.2vh 2.5vw;gap:0.7vh}
 
 /* TOP BAR */
@@ -241,40 +241,43 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
 .fund-holder{font-size:clamp(.65rem,1.5vh,1.2rem);color:#FFF;margin-top:.1vh;letter-spacing:.05em}
 
 /* ══════════════════════════════════════════════════════════════════
-   TOOLS — Qibla compass + Dhikr counter (open as overlays)
+   TABS — Prayer Times / Qibla / Dhikr
    ══════════════════════════════════════════════════════════════════ */
-.tools-bar{position:absolute;right:2.5vw;bottom:1.2vh;display:flex;gap:.8vw;z-index:5}
-.tool-btn{
-  display:inline-flex;align-items:center;gap:.5em;
-  font-family:'Cinzel',serif;font-size:clamp(.6rem,1.5vh,1.1rem);
-  letter-spacing:.18em;text-transform:uppercase;color:var(--gold-l);
-  background:linear-gradient(160deg,rgba(26,92,58,.65),rgba(10,40,24,.8));
-  border:1px solid rgba(201,168,76,.45);border-radius:30px;
-  padding:.7vh 1.6vw;cursor:pointer;
-  box-shadow:0 4px 18px rgba(0,0,0,.45),inset 0 0 18px rgba(201,168,76,.05);
-  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
-}
-.tool-btn:hover{transform:translateY(-2px);border-color:var(--gold-l);
-  box-shadow:0 6px 24px rgba(201,168,76,.25),inset 0 0 18px rgba(201,168,76,.08)}
-.tool-btn:active{transform:translateY(0)}
+.hidden{display:none!important}
+.tab-bar{display:flex;gap:.8vw;align-items:center;justify-content:center;
+  padding:.6vh 0 .7vh;border-bottom:1px solid rgba(201,168,76,.18)}
+.tab-btn{
+  font-family:'Cinzel',serif;font-size:clamp(.68rem,1.65vh,1.1rem);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--cream-d);
+  padding:.7vh 2.6vw;border:1px solid rgba(201,168,76,.35);border-radius:30px;
+  background:rgba(201,168,76,.05);cursor:pointer;
+  transition:color .2s,border-color .2s,background .2s,box-shadow .2s}
+.tab-btn:hover{color:var(--gold-l);border-color:var(--gold-l)}
+.tab-btn.active{color:#12301f;font-weight:700;
+  background:linear-gradient(180deg,var(--gold-l),var(--gold));
+  border-color:var(--gold-l);box-shadow:0 0 18px rgba(201,168,76,.35)}
+.tab-btn.active:hover{color:#0a1c12}
 
-.modal{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;
-  background:rgba(3,8,5,.82);backdrop-filter:blur(3px)}
-.modal.open{display:flex}
-.modal-card{width:min(560px,92vw);max-height:92vh;overflow:auto;
-  background:linear-gradient(150deg,#0e2418,#07130c);
-  border:1px solid rgba(201,168,76,.35);border-radius:16px;
-  padding:22px 24px;box-shadow:0 0 70px rgba(201,168,76,.18)}
-.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.modal-title{font-size:clamp(.9rem,2.2vh,1.4rem);letter-spacing:.2em;color:var(--gold-l);
-  text-transform:uppercase;font-weight:700}
-.modal-close{background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.35);
-  color:var(--cream);font-size:1.1rem;width:34px;height:34px;border-radius:50%;
-  cursor:pointer;line-height:1;transition:background .15s}
-.modal-close:hover{background:rgba(201,168,76,.2)}
+/* Panel base (fills the content row, centered) */
+.panel{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1.4vh;min-height:0;padding:1vh 0}
 
-/* Qibla */
-.qibla-body{display:flex;flex-direction:column;align-items:center;gap:16px}
+/* ── Qibla panel (scaled up for the big screen) ── */
+.qibla-panel .compass{width:min(380px,44vh);height:min(380px,44vh)}
+.qibla-panel .c-letter{font-size:clamp(1.1rem,2.6vh,1.7rem)}
+.qibla-panel .qibla-deg{font-size:clamp(2.4rem,7vh,4.2rem)}
+.qibla-panel .qibla-dir{font-size:clamp(.8rem,2vh,1.15rem)}
+.qibla-panel .qibla-km{font-size:clamp(.72rem,1.8vh,1rem)}
+.qibla-panel .qibla-src{font-size:clamp(.68rem,1.7vh,.95rem)}
+.qibla-panel .qibla-heading{font-size:clamp(.68rem,1.7vh,.95rem)}
+
+/* ── Dhikr panel (scaled up for the big screen) ── */
+.dhikr-panel .dhikr-phrase{font-size:clamp(2.2rem,6.5vh,3.6rem)}
+.dhikr-panel .dhikr-count{font-size:clamp(5rem,14vh,9rem)}
+.dhikr-panel .dhikr-sub{font-size:clamp(.8rem,2vh,1.1rem)}
+.dhikr-panel .dhikr-main{width:180px;height:180px;font-size:1.7rem}
+
+/* ── Compass internals ── */
 .compass{position:relative;width:min(230px,60vw);height:min(230px,60vw);
   border-radius:50%;border:2px solid rgba(201,168,76,.45);overflow:hidden;
   background:radial-gradient(circle at 35% 30%,rgba(26,92,58,.4),rgba(6,14,10,.95));
@@ -284,7 +287,6 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
   margin:-4px 0 0 -1px;background:rgba(201,168,76,.45)}
 .c-letter{position:absolute;left:50%;top:50%;font-size:1rem;font-weight:700;
   color:var(--gold-l);margin-left:-10px;margin-top:-8px;text-shadow:0 0 8px rgba(201,168,76,.5)}
-.compass-tick{position:absolute;color:rgba(232,201,122,.85);font-size:1.1rem;font-weight:700}
 .compass-needle{position:absolute;left:50%;bottom:50%;margin-left:-13px;width:0;height:0;
   border-left:13px solid transparent;border-right:13px solid transparent;
   border-bottom:78px solid var(--gold-l);
@@ -309,8 +311,7 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
   border:1px solid rgba(201,168,76,.4);transition:transform .15s,border-color .15s}
 .qibla-relocate:hover{transform:translateY(-2px);border-color:var(--gold-l)}
 
-/* Dhikr */
-.dhikr-body{display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0}
+/* ── Dhikr internals ── */
 .dhikr-phrase{font-family:'Amiri',serif;font-size:clamp(1.8rem,5vh,2.8rem);color:var(--gold-l);
   text-align:center;min-height:1.6em}
 .dhikr-en{font-family:'Cinzel',serif;font-size:.45em;color:var(--cream-d);letter-spacing:.1em}
@@ -419,9 +420,10 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
   .f-mid{font-size:.52rem;line-height:1.5}
 
   /* TOOLS */
-  .tools-bar{position:static;justify-content:center;gap:10px;margin-top:4px}
-  .tool-btn{font-size:.72rem;padding:9px 18px}
-  .modal-card{width:94vw;padding:16px}
+  .tab-bar{gap:8px;padding:6px 0}
+  .tab-btn{font-size:.66rem;padding:8px 0;flex:1;max-width:170px;letter-spacing:.1em}
+  .qibla-panel .compass{width:min(300px,82vw);height:min(300px,82vw)}
+  .dhikr-panel .dhikr-main{width:150px;height:150px;font-size:1.5rem}
 }
 
 /* very small phones — tighten further, drop table to a lighter grid */
@@ -475,8 +477,15 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
     </div>
   </div>
 
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="times">🕌&nbsp; Prayer Times</button>
+    <button class="tab-btn" data-tab="qibla">🕋&nbsp; Qibla</button>
+    <button class="tab-btn" data-tab="dhikr">📿&nbsp; Dhikr</button>
+  </div>
+
   <!-- CONTENT -->
-  <div class="content">
+  <div class="content" id="panelTimes">
     <div class="left">
       <div class="next-card">
         <div class="nlabel" id="nlabel">Next Prayer</div>
@@ -535,61 +544,39 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
     </div>
   </div>
 
+  <!-- QIBLA PANEL -->
+  <div class="panel qibla-panel hidden" id="panelQibla">
+    <div class="compass">
+      <div class="compass-dial" id="compassDial"></div>
+      <div class="compass-needle" id="qiblaNeedle"></div>
+      <div class="compass-center"></div>
+    </div>
+    <div class="qibla-deg" id="qiblaDeg">—</div>
+    <div class="qibla-dir" id="qiblaDir">—</div>
+    <div class="qibla-km" id="qiblaKm">—</div>
+    <div class="qibla-heading" id="qiblaHeading">Calibrating compass…</div>
+    <div class="qibla-src" id="qiblaSrc">—</div>
+    <div class="qibla-note">Hold the phone flat and point the gold arrow toward the Kaaba. Wave it in a figure-8 if the compass drifts.</div>
+    <button class="qibla-relocate" id="btnRelocate">⟳ &nbsp;Use my current location</button>
+  </div>
+
+  <!-- DHIKR PANEL -->
+  <div class="panel dhikr-panel hidden" id="panelDhikr">
+    <div class="dhikr-phrase" id="dhikrPhrase">—</div>
+    <div class="dhikr-count" id="dhikrCount">0</div>
+    <div class="dhikr-sub" id="dhikrSub">—</div>
+    <div class="dhikr-btns">
+      <button class="dhikr-main" id="dhikrTap" aria-label="Count">TAP</button>
+      <button class="dhikr-reset" id="dhikrReset">Reset</button>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <div class="footer">
     <div class="f-lt"><span class="ldot" id="ldot"></span><span id="lstatus">Connecting…</span></div>
     <div class="f-mid">Muslim World League · Shafi Asr · Seo-gu, Incheon · KST (UTC+9)</div>
   </div>
 
-  <!-- TOOLS -->
-  <div class="tools-bar">
-    <button class="tool-btn" id="btnQibla">🕋&nbsp; Qibla</button>
-    <button class="tool-btn" id="btnDhikr">📿&nbsp; Dhikr</button>
-  </div>
-
-</div>
-
-<!-- QIBLA MODAL -->
-<div class="modal" id="qiblaModal">
-  <div class="modal-card">
-    <div class="modal-head">
-      <span class="modal-title">🕋 Qibla Direction</span>
-      <button class="modal-close" data-close="qiblaModal">✕</button>
-    </div>
-    <div class="qibla-body">
-      <div class="compass">
-        <div class="compass-dial" id="compassDial"></div>
-        <div class="compass-needle" id="qiblaNeedle"></div>
-        <div class="compass-center"></div>
-      </div>
-      <div class="qibla-deg" id="qiblaDeg">—</div>
-      <div class="qibla-dir" id="qiblaDir">—</div>
-      <div class="qibla-km" id="qiblaKm">—</div>
-      <div class="qibla-heading" id="qiblaHeading">Calibrating compass…</div>
-      <div class="qibla-src" id="qiblaSrc">—</div>
-      <div class="qibla-note">Hold the phone flat and point the arrow toward the Kaaba. Wave it in a figure-8 if the compass drifts.</div>
-      <button class="qibla-relocate" id="btnRelocate">⟳ &nbsp;Use my current location</button>
-    </div>
-  </div>
-</div>
-
-<!-- DHIKR MODAL -->
-<div class="modal" id="dhikrModal">
-  <div class="modal-card">
-    <div class="modal-head">
-      <span class="modal-title">📿 Dhikr Counter</span>
-      <button class="modal-close" data-close="dhikrModal">✕</button>
-    </div>
-    <div class="dhikr-body">
-      <div class="dhikr-phrase" id="dhikrPhrase">—</div>
-      <div class="dhikr-count" id="dhikrCount">0</div>
-      <div class="dhikr-sub" id="dhikrSub">—</div>
-      <div class="dhikr-btns">
-        <button class="dhikr-main" id="dhikrTap" aria-label="Count">TAP</button>
-        <button class="dhikr-reset" id="dhikrReset">Reset</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -1266,6 +1253,22 @@ function qiblaLocation() {
 let nativeHeading = NaN;      // phone's heading from true north (native compass)
 let nativeHeadingSeen = false;
 
+function qiblaVisible() {
+  const p = document.getElementById('panelQibla');
+  return !!p && !p.classList.contains('hidden');
+}
+
+// Smooth the live heading (shortest-arc averaging) so the needle doesn't jitter.
+function smoothHeading(h) {
+  if (!Number.isFinite(h)) return;
+  if (Number.isNaN(nativeHeading)) nativeHeading = h;
+  else {
+    let d = (h - nativeHeading + 540) % 360 - 180;   // shortest arc
+    nativeHeading = (nativeHeading + 0.5 * d + 360) % 360;
+  }
+  nativeHeadingSeen = true;
+}
+
 // Build the compass dial (ticks + cardinal letters) once.
 function buildCompassDial() {
   const dial = document.getElementById('compassDial');
@@ -1318,31 +1321,29 @@ function renderQibla() {
 }
 
 function initQibla() {
-  buildCompassDial();
   renderQibla();
 }
 
 // Android pushes the live compass heading (degrees from true north) here.
 window.onNativeHeading = function (h) {
-  nativeHeading = h;
-  nativeHeadingSeen = true;
-  if (document.getElementById('qiblaModal').classList.contains('open')) renderQibla();
+  smoothHeading(h);
+  if (qiblaVisible()) renderQibla();
 };
 
-// Read the current heading on demand (used right when the modal opens, so the
+// Read the current heading on demand (used right when the tab opens, so the
 // arrow is correct before the first live push arrives).
 function pollHeading() {
   if (window.AndroidBridge && AndroidBridge.getHeading && Number.isNaN(nativeHeading)) {
     try {
       const h = parseFloat(AndroidBridge.getHeading());
-      if (!Number.isNaN(h)) { nativeHeading = h; nativeHeadingSeen = true; }
+      if (!Number.isNaN(h)) smoothHeading(h);
     } catch (e) {}
   }
 }
 
 // Live updates: Android pushes a fresh GPS fix here whenever one arrives.
 window.onNativeLocationUpdate = function (json) {
-  if (document.getElementById('qiblaModal').classList.contains('open')) renderQibla();
+  if (qiblaVisible()) renderQibla();
 };
 
 // Fallback for the plain website / browsers: web DeviceOrientation API.
@@ -1355,8 +1356,8 @@ window.onNativeLocationUpdate = function (json) {
     if (typeof e.webkitCompassHeading === 'number') h = e.webkitCompassHeading; // iOS
     else if (e.absolute && typeof e.alpha === 'number') h = (360 - e.alpha) % 360; // Android
     if (!Number.isNaN(h)) {
-      nativeHeading = h;
-      if (document.getElementById('qiblaModal').classList.contains('open')) renderQibla();
+      smoothHeading(h);
+      if (qiblaVisible()) renderQibla();
     }
   }, false);
 })();
@@ -1414,22 +1415,25 @@ function initTools() {
   renderDhikr();
   initQibla();
 
-  const open = id => document.getElementById(id).classList.add('open');
-  const close = id => document.getElementById(id).classList.remove('open');
-  document.getElementById('btnQibla').addEventListener('click', () => {
-    buildCompassDial();
-    pollHeading();
-    renderQibla();
-    open('qiblaModal');
-  });
-  document.getElementById('btnDhikr').addEventListener('click', () => open('dhikrModal'));
-  document.querySelectorAll('.modal-close').forEach(b =>
-    b.addEventListener('click', () => close(b.getAttribute('data-close'))));
-  document.querySelectorAll('.modal').forEach(m =>
-    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open'));
-  });
+  const showTab = t => {
+    const ids = { times: 'panelTimes', qibla: 'panelQibla', dhikr: 'panelDhikr' };
+    Object.keys(ids).forEach(k =>
+      document.getElementById(ids[k]).classList.toggle('hidden', k !== t));
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.tab === t));
+    if (t === 'qibla') {
+      buildCompassDial();
+      pollHeading();
+      renderQibla();
+      if (window.AndroidBridge && AndroidBridge.refreshLocation) {
+        try { AndroidBridge.refreshLocation(); } catch (e) {}
+      }
+    }
+    if (t === 'dhikr') renderDhikr();
+  };
+  document.querySelectorAll('.tab-btn').forEach(b =>
+    b.addEventListener('click', () => showTab(b.dataset.tab)));
+
   document.getElementById('dhikrTap').addEventListener('click', tapDhikr);
   document.getElementById('dhikrReset').addEventListener('click', resetDhikr);
   document.getElementById('btnRelocate').addEventListener('click', () => {
