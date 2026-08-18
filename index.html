@@ -579,6 +579,20 @@ const ADHAN_URL = window.AndroidBridge
   : 'https://cdn.aladhan.com/audio/adhans/a11-mansour-al-zahrani.mp3';
 const adhanAudio = new Audio(ADHAN_URL);
 adhanAudio.preload = 'auto';
+// Remote hosts sometimes keep the mp3 at the repo root instead of in audio/.
+// If the expected path 404s, fall back to the root file so the adhan still plays.
+if (window.AndroidBridge && !IS_FILE) {
+  let triedRoot = false;
+  adhanAudio.addEventListener('error', function () {
+    if (triedRoot) return;
+    triedRoot = true;
+    const cur = this.src;
+    if (cur.indexOf('/audio/azan8.mp3') !== -1) {
+      this.src = cur.replace('/audio/azan8.mp3', '/azan8.mp3');
+      this.load();
+    }
+  });
+}
 let adhanPlayedFor = null; // e.g. 'Fajr-2026-06-08' — prevents replaying same prayer same day
 
 // The "already played" flag is saved in localStorage, which survives closing
