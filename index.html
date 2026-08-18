@@ -72,14 +72,38 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
 
 .ornament{width:12px;height:12px;background:var(--gold);transform:rotate(45deg);box-shadow:0 0 18px var(--gold)}
 
-.clock-sec{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:.5vh}
-/* ── CLOCK: large, clearly 12hr ── */
-.clock-time{font-size:clamp(2.5rem,8vh,6.5rem);font-weight:700;color:var(--gold-l);
-  letter-spacing:.06em;line-height:1;font-variant-numeric:tabular-nums;
-  text-shadow:0 0 35px rgba(201,168,76,.5)}
-.clock-ampm{font-size:clamp(1rem,2.8vh,2.2rem);font-weight:400;color:var(--gold);
-  letter-spacing:.15em;margin-left:.4vw;vertical-align:middle}
-.clock-date{font-size:clamp(0.8rem,1.9vh,1.5rem);letter-spacing:.2em;color:var(--cream-d);text-transform:uppercase}
+.clock-sec{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:.4vh}
+/* ── CLOCK: premium gold gradient, split seconds ── */
+.clock-line{display:flex;align-items:baseline;justify-content:flex-end;gap:.45vw;
+  padding:.5vh 1.6vw .6vh;position:relative;
+  border-top:1px solid rgba(201,168,76,.3);
+  border-bottom:1px solid rgba(201,168,76,.3);
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,.08),transparent)}
+.clock-time{font-family:'Cinzel',serif;font-size:clamp(2.6rem,8.5vh,7rem);font-weight:700;
+  background:linear-gradient(180deg,#F7E3A6,var(--gold-l) 48%,#B58F3A);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  letter-spacing:.08em;line-height:1;font-variant-numeric:tabular-nums;
+  filter:drop-shadow(0 0 16px rgba(201,168,76,.45)) drop-shadow(0 2px 3px rgba(0,0,0,.55))}
+.clock-sep{font-family:'Cinzel',serif;font-size:clamp(2rem,6.5vh,5.4rem);font-weight:700;
+  color:var(--gold-l);opacity:.6;animation:blink 1s steps(1) infinite;line-height:1;
+  filter:drop-shadow(0 0 10px rgba(201,168,76,.35))}
+.clock-secnd{font-family:'Cinzel',serif;font-size:.48em;font-weight:600;
+  background:linear-gradient(180deg,var(--gold-l),#B58F3A);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  letter-spacing:.1em;line-height:1;font-variant-numeric:tabular-nums;
+  filter:drop-shadow(0 0 10px rgba(201,168,76,.35))}
+.clock-ampm{font-family:'Cinzel',serif;font-size:clamp(.75rem,2vh,1.5rem);font-weight:700;
+  color:var(--gold-l);letter-spacing:.24em;padding:.35vh 1vw;align-self:center;
+  border:1px solid rgba(201,168,76,.45);border-radius:30px;
+  background:rgba(201,168,76,.08);text-shadow:0 0 12px rgba(201,168,76,.4)}
+/* ── DATE: gold-separated premium pattern ── */
+.clock-date{font-family:'Cinzel',serif;font-size:clamp(.78rem,1.85vh,1.45rem);color:var(--cream-d);
+  letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;line-height:1.35}
+.cd-dow{color:var(--gold-l);font-weight:700;letter-spacing:.3em}
+.cd-dash{display:inline-block;width:16px;height:1px;margin:0 .5em;vertical-align:middle;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.8}
+.cd-md{color:#fff;font-weight:600}
+.cd-year{color:var(--cream-d);opacity:.78}
 /* Hijri date — premium pattern: 5 ❖ RABI AL-AWWAL ❖ 1448 AH */
 .clock-hijri{font-family:'Cinzel',serif;font-size:clamp(.95rem,2.3vh,1.7rem);color:var(--gold-l);
   margin-top:-0.6vh;letter-spacing:.1em;white-space:nowrap;line-height:1.35}
@@ -332,9 +356,11 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
   .m-addr{font-size:.55rem;letter-spacing:.08em;line-height:1.4}
   .ornament{width:9px;height:9px}
   .clock-sec{align-items:center;text-align:center}
-  .clock-time{font-size:2.5rem}
-  .clock-ampm{font-size:.9rem}
-  .clock-date{font-size:.7rem}
+  .clock-line{justify-content:center;gap:6px;padding:6px 14px}
+  .clock-time{font-size:2.6rem}
+  .clock-sep{font-size:2rem}
+  .clock-ampm{font-size:.72rem;padding:3px 10px;letter-spacing:.16em}
+  .clock-date{font-size:.66rem;letter-spacing:.12em}
   .clock-hijri{font-size:1.05rem;margin-top:2px}
 
   /* CONTENT — single column: next-prayer card, then table */
@@ -438,8 +464,11 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#060E0A;font-famil
       <div class="ornament"></div>
     </div>
     <div class="clock-sec">
-      <div>
-        <span class="clock-time" id="clockTime">12:00:00</span><span class="clock-ampm" id="clockAmPm">AM</span>
+      <div class="clock-line">
+        <span class="clock-time" id="clockTime">12:34</span>
+        <span class="clock-sep">:</span>
+        <span class="clock-secnd" id="clockSecs">56</span>
+        <span class="clock-ampm" id="clockAmPm">AM</span>
       </div>
       <div class="clock-date" id="clockDate">—</div>
       <div class="clock-hijri" id="clockHijri">—</div>
@@ -990,13 +1019,19 @@ function updateClock() {
   const ampm = h24 >= 12 ? 'PM' : 'AM';
   const h12 = h24 % 12 || 12;
 
-  // Show HH:MM:SS in 12hr, AM/PM separately and prominently
-  document.getElementById('clockTime').textContent = `${pad(h12)}:${pad(m)}:${pad(s)}`;
+  // Show HH:MM (large) + :SS (smaller) in 12hr, AM/PM in its own pill
+  document.getElementById('clockTime').textContent = `${pad(h12)}:${pad(m)}`;
+  document.getElementById('clockSecs').textContent = pad(s);
   document.getElementById('clockAmPm').textContent = ampm;
 
   const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('clockDate').textContent = `${DAYS[k.getDay()]}, ${k.getDate()} ${MONS[k.getMonth()]} ${k.getFullYear()}`;
+  document.getElementById('clockDate').innerHTML =
+    `<span class="cd-dow">${DAYS[k.getDay()]}</span>` +
+    `<span class="cd-dash"></span>` +
+    `<span class="cd-md">${k.getDate()} ${MONS[k.getMonth()]}</span>` +
+    `<span class="cd-dash"></span>` +
+    `<span class="cd-year">${k.getFullYear()}</span>`;
   applyHijri(getHijri(k));     // instant (tabular) — never blank
   fetchAccurateHijri(k);       // upgrade to the real date when online
 }
